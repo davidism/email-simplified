@@ -8,6 +8,11 @@ license = "MIT"
 license-files = ["LICENSE.txt"]
 requires-python = ">=3.11"
 
+[project.urls]
+Documentation = "https://email-simplified.readthedocs.io"
+Changes = "https://email-simplified.readthedocs.io/en/latest/changes/"
+Source = "https://github.com/davidism/email-simplified/"
+
 [project.entry-points."email_simplified.handler"]
 smtp = "email_simplified.handlers.smtp:SMTPEmailHandler"
 test = "email_simplified.handlers.test:TestEmailHandler"
