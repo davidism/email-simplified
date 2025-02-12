@@ -1,6 +1,6 @@
 [project]
 name = "email-simplified"
-version = "0.1.0.dev"
+version = "0.1.0"
 description = "Email builder and sending handler interface."
 readme = "README.md"
 authors = [{ name = "David Lord" }]
