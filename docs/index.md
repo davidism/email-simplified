@@ -22,7 +22,7 @@ $ pip install email-simplified
 
 ## Source
 
-The project is hosted on GitHub: <https://github.com/davidism/flask-email-simplified>.
+The project is hosted on GitHub: <https://github.com/davidism/email-simplified>.
 
 ## Features
 
