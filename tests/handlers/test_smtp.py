@@ -106,3 +106,15 @@ def test_send_async(connect: MagicMock) -> None:
     asyncio.run(handler.send_async([Message(subject="a")]))
     connect.assert_called()
     assert ctx.send_message.call_count == 1
+
+
+@patch.object(SMTPEmailHandler, "connect")
+def test_set_message_from(connect: MagicMock) -> None:
+    ctx = create_autospec(SMTP, instance=True)
+    connect.return_value.__enter__.return_value = ctx
+    handler = SMTPEmailHandler(default_from="default@example.test")
+    message1 = Message(subject="a")
+    message2 = Message(subject="b", from_addr="b@example.test")
+    handler.send([message1, message2])
+    assert str(message1.from_addr) == "default@example.test"
+    assert str(message2.from_addr) == "b@example.test"
