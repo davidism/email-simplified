@@ -323,7 +323,7 @@ wheels = [
 
 [[package]]
 name = "email-simplified"
-version = "0.1.1.dev0"
+version = "0.1.1"
 source = { editable = "." }
 
 [package.dev-dependencies]
