@@ -1,6 +1,6 @@
 [project]
 name = "email-simplified"
-version = "0.1.0"
+version = "0.1.1.dev"
 description = "Email builder and sending handler interface."
 readme = "README.md"
 authors = [{ name = "David Lord" }]
@@ -10,7 +10,7 @@ requires-python = ">=3.11"
 
 [project.urls]
 Documentation = "https://email-simplified.readthedocs.io"
-Changes = "https://email-simplified.readthedocs.io/en/latest/changes/"
+Changes = "https://email-simplified.readthedocs.io/page/changes/"
 Source = "https://github.com/davidism/email-simplified/"
 
 [project.entry-points."email_simplified.handler"]
@@ -18,16 +18,14 @@ smtp = "email_simplified.handlers.smtp:SMTPEmailHandler"
 test = "email_simplified.handlers.test:TestEmailHandler"
 
 [build-system]
-requires = ["pdm-backend>=2.4"]
-build-backend = "pdm.backend"
+requires = ["flit_core>=3.11,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "email_simplified"
 
 [dependency-groups]
 dev = [
-    "mypy",
-    "pre-commit",
-    "pyright",
-    "pytest",
-    "pytest-cov",
     "ruff",
     "tox",
     "tox-uv",
@@ -45,6 +43,7 @@ gha-update = [
 ]
 pre-commit = [
     "pre-commit",
+    "pre-commit-uv",
 ]
 tests = [
     "pytest",
@@ -53,8 +52,10 @@ tests = [
 typing = [
     "mypy",
     "pyright",
-    "pytest",
 ]
+
+[tool.uv]
+default-groups = ["dev", "pre-commit", "tests", "typing"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -83,11 +84,6 @@ show_error_codes = true
 pretty = true
 strict = true
 
-[tool.pyright]
-pythonVersion = "3.11"
-include = ["src", "tests"]
-typeCheckingMode = "strict"
-
 [tool.ruff]
 src = ["src"]
 fix = true
@@ -108,66 +104,72 @@ select = [
 force-single-line = true
 order-by-type = false
 
-[tool.gha-update]
-tag-only = [
-    "slsa-framework/slsa-github-generator",
-]
-
 [tool.tox]
 env_list = [
-    "py3.13", "py3.12", "py3.11",
+    "py3.14", "py3.13", "py3.12", "py3.11",
     "style",
     "typing",
     "docs",
 ]
 
 [tool.tox.env_run_base]
+description = "run pytest"
 runner = "uv-venv-lock-runner"
 package = "wheel"
 wheel_build_env = ".pkg"
 constrain_package_deps = true
 use_frozen_constraints = true
 dependency_groups = ["tests"]
-commands = [[
-    "pytest", "-v", "--tb=short", "--basetemp={env_tmp_dir}",
-    "--cov", "--cov-report=term-missing",
-    { replace = "posargs", default = [], extend = true },
-]]
+commands = [
+    [
+        "pytest", "-v", "--tb=short", "--basetemp={env_tmp_dir}",
+        "--cov", "--cov-report=term-missing",
+        { replace = "posargs", default = [], extend = true },
+    ],
+]
 
 [tool.tox.env.style]
-dependency_groups = ["pre-commmit"]
+description = "run all pre-commit hooks on all files"
+dependency_groups = ["pre-commit"]
 skip_install = true
 commands = [["pre-commit", "run", "--all-files"]]
 
 [tool.tox.env.typing]
-dependency_groups = ["typing"]
+description = "run static type checkers"
+dependency_groups = ["tests", "typing"]
 commands = [
     ["mypy"],
-    ["pyright"],
     ["pyright", "--verifytypes", "email_simplified", "--ignoreexternal"],
 ]
 
 [tool.tox.env.docs]
+description = "build docs"
 dependency_groups = ["docs"]
 commands = [["sphinx-build", "-E", "-W", "-b", "dirhtml", "docs", "docs/_build/dirhtml"]]
 
 [tool.tox.env.docs-auto]
+description = "continuously rebuild docs and start a local server"
 dependency_groups = ["docs", "docs-auto"]
 commands = [["sphinx-autobuild", "-W", "-b", "dirhtml", "--watch", "src", "docs", "docs/_build/dirhtml"]]
 
 [tool.tox.env.update-actions]
+description = "update GitHub Actions pins"
 labels = ["update"]
 dependency_groups = ["gha-update"]
 skip_install = true
 commands = [["gha-update"]]
 
 [tool.tox.env.update-pre_commit]
+description = "update pre-commit pins"
 labels = ["update"]
 dependency_groups = ["pre-commit"]
 skip_install = true
 commands = [["pre-commit", "autoupdate", "--freeze", "-j4"]]
 
 [tool.tox.env.update-requirements]
+description = "update uv lock"
 labels = ["update"]
+dependency_groups = []
+no_default_groups = true
 skip_install = true
 commands = [["uv", "lock", { replace = "posargs", default = ["-U"], extend = true }]]
