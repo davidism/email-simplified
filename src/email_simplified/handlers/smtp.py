@@ -165,6 +165,13 @@ class SMTPEmailHandler(EmailHandler):
         with self.connect() as client:
             for message in messages:
                 if isinstance(message, Message):
+                    if message.from_addr is None:
+                        # Set the From header in the message to the default. If it's
+                        # not set some clients don't show the SMTP MAIL address, and
+                        # may mark it as spam. This is only done to Mesage, MIME is
+                        # assumed to be deliberate.
+                        message.from_addr = self.default_from
+
                     mime_message = message.to_mime()
                 else:
                     mime_message = message
